@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Library main page</title>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/form.js"> </script>
+    </head>
+
+    <body class="fonts">
+
+        <h1>Главная страница библиотеки</h1>
+
+        Библиотечный номер книги: <input type="text" id="bookID"><br>
+        Название книги: <input type="text" id="bookName"><br>
+
+        Имя читателя (в формате "Иванов ИИ"): <input type="text" id="fullName"><br>
+        Телефон читателя (6 цифр): <input type="text" id="phoneNumber"><br><br>
+
+        <button id="giveBookToPerson" class="btn btn-default btn-md">Выдать книгу читателю</button><br>
+
+        <button id="takeBackBookFromPerson" class="btn btn-default btn-md">Забрать книгу у читателя</button><br>
+
+        <button id="checkBooksOfPerson" class="btn btn-default btn-md">Показать книги, выданные читателю</button><br>
+
+        <button id="checkPersonHistory" class="btn btn-default btn-md">Просмотреть историю выдачи книг читателю</button><br>
+
+        <button id="checkBookHistory" class="btn btn-default btn-md">Просмотреть историю выдачи книги</button><br>
+
+        <button id="checkBusyBooks" class="btn btn-default btn-md">Просмотреть выданные книги</button><br>
+
+        <button id="checkFreeBooks" class="btn btn-default btn-md">Просмотреть невыданные книги</button><br><br>
+
+        <a href="http://localhost:8888/books">Страница работы с книгами</a><br>
+
+        <a href="http://localhost:8888/persons">Страница работы с читателями</a>
+
+    </body>
+</html>
