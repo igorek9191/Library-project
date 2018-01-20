@@ -68,7 +68,7 @@ public class Application {
 		return new ApiInfoBuilder()
 				.title("Spring REST Sample with Swagger")
 				.description("Spring REST Sample with Swagger")
-				.contact("https://github.com/stpanda/PaymentForm")
+				.contact("https://github.com/igorek9191/Library-project")
 				.version("1.0")
 				.build();
 	}
