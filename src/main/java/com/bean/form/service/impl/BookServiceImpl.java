@@ -36,7 +36,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookView addBook(BookView bookView) {
-        validateInputData(bookView);
+
         BookModel bookModel = new BookModel(bookView.bookID, bookView.bookName);
         BookModel savedBook = bookDAO.addBook(bookModel);
         return new BookView(savedBook.getBookID(), savedBook.getBookName());
@@ -45,7 +45,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookView editBook(BookView bookView) {
-        validateInputData(bookView);
+
         BookModel bookModel = new BookModel(bookView.getBookID(), bookView.getBookName());
         BookModel newBookModel = bookDAO.editBook(bookModel);
         return new BookView(newBookModel.getBookID(), newBookModel.getBookName());
@@ -58,11 +58,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookModel findById(BookView bookView) {
-
+    public BookView findById(BookView bookView) {
         BookModel bookModel = bookDAO.findById(bookView.getBookID());
-        //BookView foundedBookView = new BookView(bookModel.getBookID(), bookModel.getBookName());
-        return bookModel;
+        BookView foundedBookView = new BookView(bookModel.getBookID(), bookModel.getBookName());
+        return foundedBookView;
     }
 
     @Override
@@ -113,22 +112,6 @@ public class BookServiceImpl implements BookService {
             return view;
         };
         return bookModelList.stream().map(bookModelBookViewFunction).collect(Collectors.toList());
-    }
-
-
-    public static void validateInputData (BookView bookView){
-        Pattern bookIdPt = Pattern.compile("[\\d]{1,4}");
-        Pattern bookNamePt = Pattern.compile("[А-Яа-я]{0,}\\s{0,2}?[А-Яа-я]{0,}?\\s{0,2}?[А-Яа-я]{0,}?");//+(\s){1}[А-Яа-я]+
-
-        Matcher bookIdMt = bookIdPt.matcher(bookView.bookID);
-        Matcher fullNameMt = bookNamePt.matcher(bookView.bookName);
-
-        boolean bookIdMatch = bookIdMt.matches();
-        boolean bookNameMatch = fullNameMt.matches();
-
-        if(!bookIdMatch || !bookNameMatch){
-            throw new IncorrectInputBookDataException();
-        }
     }
 
 }

@@ -26,6 +26,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
@@ -53,21 +55,19 @@ public class BookController {
     @RequestMapping(value = "/book/add", method = {POST})
     public Response<BookView, String> addBook(@RequestBody BookView bookView) {
 
+        validateInputData(bookView);
+
         BookView data = null;
         String error = null;
-        BookModel book = null;
 
         try {
-            book = bookService.findById(bookView);
-            data = new BookView(book.getBookID(), book.getBookName());
+            data = bookService.findById(bookView);
         }
-        catch (Exception e) {
-            if (book == null) {
+        catch (NullPointerException e) {
+            if (data == null) {
                 data = bookService.addBook(bookView);
                 return new Response<>(data, error);
             }
-            error = e.getMessage();
-            return new Response<>(data, error);
         }
         throw new BookAlreadyPresentException(data.getBookName(), data.getBookID());
     }
@@ -77,18 +77,19 @@ public class BookController {
     @RequestMapping(value = "/book/edit", method = {PUT})
     public Response<BookView, String> editBook(@RequestBody BookView bookView){
 
+        validateInputData(bookView);
+
         BookView data = null;
         String error = null;
-        BookModel book = null;
+        //BookModel book = null;
 
         try{
-            book = bookService.findById(bookView);
-            data = new BookView(book.getBookID(), book.getBookName());
+            data = bookService.findById(bookView);
         }
-        catch (Exception e){
-            if (book == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-            error = e.getMessage();
-            return new Response<>(data, error);
+        catch (NullPointerException e){
+            if (data == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+            //error = e.getMessage();
+            //return new Response<>(data, error);
         }
         data = bookService.editBook(bookView);
         return new Response<>(data, error);
@@ -99,22 +100,25 @@ public class BookController {
     @RequestMapping(value = "/book/delete", method = {DELETE})
     public Response<BookView, String> deleteBook(@RequestBody  BookView bookView) {
 
+        validateInputData(bookView);
+
         BookView data = null;
         String error = null;
-        BookModel book = null;
+        //BookModel book = null;
 
         try{
-            book = bookService.findById(bookView);
+            data = bookService.findById(bookView);
         }
-        catch (Exception e) {
-            if (book == null) {
+        catch (NullPointerException e) {
+            if (data == null) {
                 throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
             }
-            error = e.getMessage();
-            return new Response<>(data, error);
+            //error = e.getMessage();
+            //return new Response<>(data, error);
         }
-        if(!book.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-        data = new BookView(book.getBookID(), book.getBookName());
+        //на случай если ID одинаковые но названия разные
+        if(!data.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        //data = new BookView(book.getBookID(), book.getBookName());
         bookService.deleteBook(bookView.getBookID());
         return new Response<>(data, error);
     }
@@ -179,5 +183,20 @@ public class BookController {
         list.add(ex.getMessage());
         listOfResponse.setErrors(list);
         return listOfResponse;
+    }
+
+    public static void validateInputData (BookView bookView){
+        Pattern bookIdPt = Pattern.compile("[\\d]{1,4}");
+        Pattern bookNamePt = Pattern.compile("[А-Яа-я]{0,}\\s{0,2}?[А-Яа-я]{0,}?\\s{0,2}?[А-Яа-я]{0,}?");//+(\s){1}[А-Яа-я]+
+
+        Matcher bookIdMt = bookIdPt.matcher(bookView.bookID);
+        Matcher fullNameMt = bookNamePt.matcher(bookView.bookName);
+
+        boolean bookIdMatch = bookIdMt.matches();
+        boolean bookNameMatch = fullNameMt.matches();
+
+        if(!bookIdMatch || !bookNameMatch){
+            throw new IncorrectInputBookDataException();
+        }
     }
 }

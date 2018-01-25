@@ -41,4 +41,9 @@ public class BookView {
                 " fullName= " + bookName +
                 " }";
     }
+
+    public boolean equals (BookView bookView){
+        if(this.bookID.equals(bookView.getBookID()) && this.bookName.equals(bookView.getBookName())) return true;
+        else return false;
+    }
 }

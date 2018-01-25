@@ -17,7 +17,7 @@ public interface BookService {
 
     List<BookView> getBookList();
 
-    BookModel findById (BookView bookView);
+    BookView findById (BookView bookView);
 
     BookModel findByIdAndName (BookView bookView);
 
