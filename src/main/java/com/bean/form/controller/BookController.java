@@ -1,7 +1,6 @@
 package com.bean.form.controller;
 
 import com.bean.form.exceptions.BookExceptions.*;
-import com.bean.form.model.BookModel;
 import com.bean.form.service.BookService;
 import com.bean.form.view.BookView;
 import com.bean.form.view.ErrorResponse;
@@ -58,15 +57,13 @@ public class BookController {
         validateInputData(bookView);
 
         BookView data = null;
-        String error = null;
 
         try {
             data = bookService.findById(bookView);
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             if (data == null) {
                 data = bookService.addBook(bookView);
-                return new Response<>(data, error);
+                return new Response<>(data, null);
             }
         }
         throw new BookAlreadyPresentException(data.getBookName(), data.getBookID());
@@ -80,19 +77,14 @@ public class BookController {
         validateInputData(bookView);
 
         BookView data = null;
-        String error = null;
-        //BookModel book = null;
 
         try{
             data = bookService.findById(bookView);
-        }
-        catch (NullPointerException e){
+        } catch (NullPointerException e){
             if (data == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-            //error = e.getMessage();
-            //return new Response<>(data, error);
         }
         data = bookService.editBook(bookView);
-        return new Response<>(data, error);
+        return new Response<>(data, null);
     }
 
     @ApiOperation(value = "delete")
@@ -103,39 +95,28 @@ public class BookController {
         validateInputData(bookView);
 
         BookView data = null;
-        String error = null;
-        //BookModel book = null;
 
         try{
             data = bookService.findById(bookView);
-        }
-        catch (NullPointerException e) {
-            if (data == null) {
-                throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-            }
-            //error = e.getMessage();
-            //return new Response<>(data, error);
+        } catch (NullPointerException e) {
+            if (data == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
         }
         //на случай если ID одинаковые но названия разные
         if(!data.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-        //data = new BookView(book.getBookID(), book.getBookName());
         bookService.deleteBook(bookView.getBookID());
-        return new Response<>(data, error);
+        return new Response<>(data, null);
     }
 
     @ApiOperation(value = "get allBooks", nickname = "get allBooks", httpMethod = "GET")
     @CrossOrigin
     @RequestMapping(value = "/book/all", method = {GET})
     public Response<List<BookView>, String> bookCatalog() {
+
         List<BookView> data = null;
-        String errors = null;
-        try {
-            data = bookService.getBookList();
-        } catch (Exception e) {
-            return new Response<>(data, e.getMessage());
-        }
+
+        data = bookService.getBookList();
         if (data.size() == 0) return new Response<>(data, "Нет книг в БД");
-        return new Response<>(data, errors);
+        return new Response<>(data, null);
     }
 
     @RequestMapping(value = "/book/addbyexcel", method = {POST})

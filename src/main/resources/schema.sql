@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `History`(
   `Sys_Creation_Date` VARCHAR(255) NOT NULL,
   `BookID`            INT(4) NOT NULL,
   `Book_Name`         VARCHAR(255) NOT NULL,
+  `Person_ID`         INT NOT NULL,
   `Peson_Name`        VARCHAR(255) NOT NULL,
   `Phone_Number`      VARCHAR(20) NOT NULL,
   `Given_Date`        VARCHAR(255),

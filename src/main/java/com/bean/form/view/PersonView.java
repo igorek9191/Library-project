@@ -5,7 +5,7 @@ import javax.persistence.Column;
 
 public class PersonView {
 
-    //private Long id;
+    private Long id;
 
     public String fullName;
 
@@ -23,7 +23,7 @@ public class PersonView {
         this.phoneNumber = phoneNumber;
     }
 
-    /*public PersonView(Long id, String fullName, int phoneNumber) {
+    public PersonView(Long id, String fullName, String phoneNumber) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -35,7 +35,7 @@ public class PersonView {
 
     public void setId(Long id) {
         this.id = id;
-    }*/
+    }
 
     public String getFullName() {
         return fullName;

@@ -17,8 +17,6 @@ public interface BookDAO {
 
     BookModel findById (String bookId);
 
-    BookModel findByIdAndName (String Id, String name);
-
     PersonModel checkPersonOfBook (String bookId);
 
     void saveBookWithPerson(BookModel bookModel);

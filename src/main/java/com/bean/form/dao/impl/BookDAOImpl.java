@@ -57,16 +57,11 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public BookModel findByIdAndName(String Id, String name) {
-
-        return null;
-    }
-
-    @Override
     public PersonModel checkPersonOfBook(String bookId) {
-        Query query = entityManager.createQuery("SELECT person FROM BookModel WHERE bookID =:bookId").setParameter("bookId", bookId);
-        PersonModel personModel = (PersonModel) query.getSingleResult();
-        return personModel;
+        TypedQuery<PersonModel> query = entityManager.createQuery("SELECT person FROM BookModel WHERE bookID =:bookId", PersonModel.class).setParameter("bookId", bookId);
+        PersonModel person = query.getSingleResult();
+        //PersonModel personModel = (PersonModel) query.getSingleResult();
+        return person;
     }
 
     @Transactional
@@ -84,7 +79,7 @@ public class BookDAOImpl implements BookDAO {
     @Override
     public void detachBookFromPerson(BookModel bookModel) {
         String id = bookModel.getBookID();
-        Query query = entityManager.createQuery("UPDATE BookModel SET person = null where bookID =:id");
+        Query query = entityManager.createQuery("UPDATE BookModel SET person = null WHERE bookID =:id");
         query.setParameter("id", id).executeUpdate();
         System.out.println(entityManager.find(BookModel.class, id).toString());
     }
@@ -101,7 +96,6 @@ public class BookDAOImpl implements BookDAO {
     public List<String> listOfBusyBooks() {
         TypedQuery<String> query = entityManager.createQuery("SELECT bookName FROM BookModel WHERE person is not null", String.class);
         List<String> resultList = query.getResultList();
-        //List<String> resultList = query.getResultList().stream().map(e -> e.getBookName()).collect(Collectors.toList());
         return resultList;
     }
 

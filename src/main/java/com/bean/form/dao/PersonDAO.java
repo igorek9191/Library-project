@@ -14,7 +14,7 @@ public interface PersonDAO {
 
     PersonModel editPerson (PersonModel personModel);
 
-    PersonModel deletePerson (Long ID);
+    void deletePerson (Long ID);
 
     List<PersonModel> allPersons();
 }

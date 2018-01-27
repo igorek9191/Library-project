@@ -50,10 +50,9 @@ public class PersonDAOImpl implements PersonDAO {
     }
 
     @Override
-    public PersonModel deletePerson(Long ID) {
+    public void deletePerson(Long ID) {
         PersonModel person = entityManager.find(PersonModel.class, ID);
         if(person!=null) entityManager.remove(person);
-        return person;
     }
 
     @Override

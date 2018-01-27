@@ -1,22 +1,19 @@
 package com.bean.form.controller;
 
 import com.bean.form.dao.BookDAO;
-import com.bean.form.dao.HistoryGiveAndReturnBookDAO;
+import com.bean.form.dao.HistoryDAO;
 import com.bean.form.exceptions.*;
 import com.bean.form.exceptions.BookExceptions.BookNotFoundException;
 import com.bean.form.exceptions.BookExceptions.IncorrectInputBookDataException;
 import com.bean.form.exceptions.PersonExceptions.IncorrectPersonInputData;
 import com.bean.form.exceptions.PersonExceptions.PersonNotFoundException;
-import com.bean.form.model.BookModel;
-import com.bean.form.model.PersonModel;
 import com.bean.form.service.BookService;
 import com.bean.form.service.PersonService;
-import com.bean.form.service.impl.BookServiceImpl;
-import com.bean.form.service.impl.PersonServiceImpl;
 import com.bean.form.view.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,10 +37,10 @@ public class GiveTakeBackController {
 
     private final BookDAO bookDAO;
 
-    private final HistoryGiveAndReturnBookDAO givenAndReturnBookDAO;
+    private final HistoryDAO givenAndReturnBookDAO;
 
     @Autowired
-    public GiveTakeBackController(TaskExecutor executor, BookService bookService, PersonService personService, BookDAO bookDAO, HistoryGiveAndReturnBookDAO givenAndReturnBookDAO) {
+    public GiveTakeBackController(TaskExecutor executor, BookService bookService, PersonService personService, BookDAO bookDAO, HistoryDAO givenAndReturnBookDAO) {
         this.executor = executor;
         this.bookService = bookService;
         this.personService = personService;
@@ -59,26 +56,28 @@ public class GiveTakeBackController {
         BookView bookView = bookToFromPerson.bookView();
         PersonView personView = bookToFromPerson.personView();
 
-        PersonModel findPerson = null;
-        BookModel findBook = null;
-        PersonModel checkPerson = null;
+        PersonController.validateInputData(personView);
+        BookController.validateInputData(bookView);
 
-        PersonServiceImpl.validateInputData(personView);
-        BookServiceImpl.validateInputData(bookView);
+        BookView findBook = null;
+        PersonView findPerson = null;
+        PersonView checkPerson = null;
 
         try {
-            findPerson = personService.findByFullNameAndTelNomber(personView);
             findBook = bookService.findById(bookView);
+            findPerson = personService.findPersonWithId(personView);
             checkPerson = bookService.checkPersonOfBook(bookView);
         }
-        catch (Exception e) {
+        catch(NullPointerException e) {
+            if(findBook == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        }
+        catch (EmptyResultDataAccessException e) {
             if(findPerson == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-            if(findBook == null || !findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+            if(!findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
             if(checkPerson==null){
-                bookService.addPersonToBook(bookView, personView);
+                bookService.addPersonToBook(bookView, findPerson);
                 return new Response<>("Книга "+bookView.getBookName()+" успешно выдана читателю "+personView.getFullName(),null);
             }
-            return new Response<>(null,e.getMessage());
         }
         if(!findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
         throw new BookAlreadyIssuedException(bookView.getBookName(), checkPerson.getFullName());
@@ -92,34 +91,31 @@ public class GiveTakeBackController {
         BookView bookView = bookFromPersonView.bookView();
         PersonView personView = bookFromPersonView.personView();
 
-        PersonModel findPerson = null;
-        BookModel findBook = null;
-        PersonModel checkPerson = null;
+        PersonController.validateInputData(personView);
+        BookController.validateInputData(bookView);
 
-        PersonServiceImpl.validateInputData(personView);
-        BookServiceImpl.validateInputData(bookView);
+        BookView findBook = null;
+        PersonView findPerson = null;
+        PersonView checkPerson = null;
 
         try {
-            findPerson = personService.findByFullNameAndTelNomber(personView);
             findBook = bookService.findById(bookView);
+            findPerson = personService.findPersonWithId(personView);
             checkPerson = bookService.checkPersonOfBook(bookView);
-
-            if(!findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-            if (findPerson.equals(checkPerson)) {
-                bookService.detachPersonFromBook(bookView, personView);
-                return new Response<>("Книгу " + findBook.getBookName() + " забрали у читателя " + findPerson.getFullName(), null);
-            } else {
-                //return new Response<>(null, "Книга " + bookView.getBookName() + " была выдана читателю " + checkPerson.getFullName() + " а не читателю "+personViewName);
-                throw new BookIssuedAnotherPersonException(bookView.getBookName(), checkPerson.getFullName(), checkPerson.getPhoneNumber(), findPerson.getFullName(), findPerson.getPhoneNumber());
-            }
         }
-        catch (Exception e) {
+        catch(NullPointerException e) {
+            if(findBook == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        }
+        catch (EmptyResultDataAccessException e) {
             if(findPerson == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-            if(findBook == null || !findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
             if(checkPerson == null) throw new BookWasNotGivenException(bookView.getBookName(), personView.getFullName());
-            if(e instanceof CustomException) handleException((RuntimeException) e);
-
-            return new Response<>(null,e.getMessage());
+        }
+        if(!findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        if (findPerson.equals(checkPerson)) {
+            bookService.detachPersonFromBook(bookView, findPerson);
+            return new Response<>("Книгу " + findBook.getBookName() + " забрали у читателя " + findPerson.getFullName(), null);
+        } else {
+            throw new BookIssuedAnotherPersonException(bookView.getBookName(), checkPerson.getFullName(), checkPerson.getPhoneNumber(), findPerson.getFullName(), findPerson.getPhoneNumber());
         }
     }
 
@@ -128,20 +124,19 @@ public class GiveTakeBackController {
     @RequestMapping(value = "/checkBooksOfPerson", method = {POST})
     public Response<List<String>, String> checkBooksOfPerson(@RequestBody PersonView personView) {
 
-        PersonModel person = null;
-        List<String> books = new ArrayList<>();
+        PersonController.validateInputData(personView);
 
-        PersonServiceImpl.validateInputData(personView);
+        PersonView person = null;
+        List<String> books;
 
         try {
-            person = personService.findByFullNameAndTelNomber(personView);
-            books = bookService.findPersonBooks(person.getId());
-            if(books.size() == 0) return new Response<>(null, "У читателя нет книг");
+            person = personService.findPersonWithId(personView);
         }
-        catch (Exception e){
+        catch (EmptyResultDataAccessException e){
             if(person == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-            return new Response<>(null, e.getMessage());
         }
+        books = bookService.findPersonBooks(person.getId());
+        if(books.size() == 0) return new Response<>(null, "У читателя нет книг");
         return new Response<>(books, null);
     }
 
@@ -149,12 +144,8 @@ public class GiveTakeBackController {
     @CrossOrigin
     @RequestMapping(value = "/checkBusyBooks", method = {GET})
     public Response<List<String>, String> checkBusyBooks() {
-        List<String> busyBooks = null;
-        try {
-            busyBooks = bookDAO.listOfBusyBooks();
-        } catch (Exception e) {
-            return new Response<>(null, e.getMessage());
-        }
+
+        List<String> busyBooks = bookDAO.listOfBusyBooks();
         if(busyBooks.size() == 0) return new Response<>(null, "Нет выданных книг читателям");
         return new Response<>(busyBooks, null);
     }
@@ -163,12 +154,8 @@ public class GiveTakeBackController {
     @CrossOrigin
     @RequestMapping(value = "/checkFreeBooks", method = {GET})
     public Response<List<String>, String> checkFreeBooks() {
-        List<String> freeBooks = null;
-        try {
-            freeBooks = bookDAO.listOfFreeBooks();
-        } catch (Exception e) {
-            return new Response<>(null, e.getMessage());
-        }
+
+        List<String> freeBooks = bookDAO.listOfFreeBooks();
         if(freeBooks.size() == 0) return new Response<>(null, "Все книги выданы читателям");
         return new Response<>(freeBooks, null);
     }
@@ -178,20 +165,19 @@ public class GiveTakeBackController {
     @RequestMapping(value = "/checkPersonHistory", method = {POST})
     public Response<List<String>, String> checkPersonHistory(@RequestBody PersonView personView) {
 
-        PersonModel person = null;
-        List<String> history = new ArrayList<>();
+        PersonController.validateInputData(personView);
 
-        PersonServiceImpl.validateInputData(personView);
+        PersonView person = null;
+        List<String> history;
 
         try {
             person = personService.findByFullNameAndTelNomber(personView);
-            history = givenAndReturnBookDAO.showEntriesThroughPerson(personView);
-            if(history.size() == 0) return new Response<>(null, "Читателю не выдавали книг");
         }
-        catch (Exception e){
+        catch (EmptyResultDataAccessException e){
             if(person == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-            return new Response<>(null, e.getMessage());
         }
+        history = givenAndReturnBookDAO.showEntriesThroughPerson(personView);
+        if(history.size() == 0) return new Response<>(null, "Читателю не выдавали книг");
         return new Response<>(history, null);
     }
 
@@ -200,24 +186,22 @@ public class GiveTakeBackController {
     @RequestMapping(value = "/checkBookHistory", method = {POST})
     public Response<List<String>, String> checkBookHistory(@RequestBody BookView bookView) {
 
-        BookModel bookModel = null;
-        List<String> history = new ArrayList<>();
+        BookController.validateInputData(bookView);
 
-        BookServiceImpl.validateInputData(bookView);
+        BookView book = null;
+        List<String> history;
 
         try {
-            bookModel = bookService.findById(bookView);
-            history = givenAndReturnBookDAO.showEntriesThroughBook(bookView);
-            if(history.size() == 0) return new Response<>(null, "Книга никому не выдавалась");
+            book = bookService.findById(bookView);
+        } catch (NullPointerException e){
+            if(book == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
         }
-        catch (Exception e){
-            if(bookModel == null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-            return new Response<>(null, e.getMessage());
-        }
+        history = givenAndReturnBookDAO.showEntriesThroughBook(bookView);
+        if(history.size() == 0) return new Response<>(null, "Книга никому не выдавалась");
         return new Response<>(history, null);
     }
 
-    @ExceptionHandler({BookAlreadyIssuedException.class, BookWasNotGivenException.class, PersonNotFoundException.class, IncorrectPersonInputData.class, BookNotFoundException.class, IncorrectInputBookDataException.class})
+    @ExceptionHandler({BookAlreadyIssuedException.class, BookIssuedAnotherPersonException.class,BookWasNotGivenException.class, PersonNotFoundException.class, IncorrectPersonInputData.class, BookNotFoundException.class, IncorrectInputBookDataException.class})
     @ResponseStatus(value= HttpStatus.BAD_REQUEST)
     public ErrorResponse<List<String>> handleException(RuntimeException ex){
         ErrorResponse<List<String>> listOfResponse = new ErrorResponse<>();

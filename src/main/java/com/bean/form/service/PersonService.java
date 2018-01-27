@@ -1,7 +1,6 @@
 package com.bean.form.service;
 
-
-import com.bean.form.model.PersonModel;
+import org.springframework.dao.EmptyResultDataAccessException;
 import com.bean.form.view.PersonView;
 
 import java.util.List;
@@ -12,10 +11,12 @@ public interface PersonService {
 
     PersonView editPerson(PersonView oldPerson, Long Id);
 
-    PersonView deletePerson (Long ID);
+    void deletePerson (PersonView personView);
 
     List<PersonView> personCatalog ();
 
     //PersonView findByFullNameAndTelNomber(String personName, int telephoneNumber);
-    PersonModel findByFullNameAndTelNomber(PersonView personView);
+    PersonView findByFullNameAndTelNomber(PersonView personView) throws EmptyResultDataAccessException;
+
+    PersonView findPersonWithId (PersonView personView);
 }

@@ -5,7 +5,7 @@ import com.bean.form.view.PersonView;
 
 import java.util.List;
 
-public interface HistoryGiveAndReturnBookDAO {
+public interface HistoryDAO {
 
     void saveGivenEntry(BookView bookView, PersonView personView);
 

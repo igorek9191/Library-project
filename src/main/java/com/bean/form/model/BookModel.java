@@ -19,14 +19,14 @@ public class BookModel {
     @JoinColumn(name = "Person_Id")
     private PersonModel person;
 
-    @Override
+    /*@Override
     public String toString() {
         if(this.person == null){
             return "BookModel is:\n"+ "bookID: "+ this.bookID + "\nbookName: " + this.bookName + "\npersonID: NULL";
         } else {
             return "BookModel is:\n" + "bookID: " + this.bookID + "\nbookName: " + this.bookName + "\npersonID: " + this.person.getId();
         }
-    }
+    }*/
     
     public BookModel() {
     }
@@ -68,11 +68,6 @@ public class BookModel {
 
     public void setPerson(PersonModel person) {
         this.person = person;
-    }
-
-    public boolean equals (BookView bookView){
-        if(this.bookID.equals(bookView.getBookID()) && this.bookName.equals(bookView.getBookName())) return true;
-        else return false;
     }
 
 }

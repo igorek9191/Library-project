@@ -1,16 +1,9 @@
 package com.bean.form;
 
-import com.bean.form.controller.BookController;
-import com.bean.form.controller.GiveTakeBackController;
-import com.bean.form.controller.PersonController;
 import com.bean.form.dao.impl.BookDAOImpl;
 import com.bean.form.dao.impl.PersonDAOImpl;
-import com.bean.form.model.BookModel;
-import com.bean.form.model.PersonModel;
 import com.bean.form.service.impl.BookServiceImpl;
 import com.bean.form.service.impl.PersonServiceImpl;
-import com.bean.form.view.BookView;
-import com.bean.form.view.PersonView;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

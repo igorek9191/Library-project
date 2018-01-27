@@ -1,6 +1,6 @@
 package com.bean.form.dao.impl;
 
-import com.bean.form.dao.HistoryGiveAndReturnBookDAO;
+import com.bean.form.dao.HistoryDAO;
 import com.bean.form.model.HistoryModel;
 import com.bean.form.view.BookView;
 import com.bean.form.view.PersonView;
@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class HistoryGiveAndReturnBookDAOImpl implements HistoryGiveAndReturnBookDAO {
+public class HistoryDAOImpl implements HistoryDAO {
 
     private final EntityManager entityManager;
 
     @Autowired
-    public HistoryGiveAndReturnBookDAOImpl(EntityManager entityManager) {
+    public HistoryDAOImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -37,12 +37,13 @@ public class HistoryGiveAndReturnBookDAOImpl implements HistoryGiveAndReturnBook
         String stringSQLdate = sqlDate.toString();
         String bookID = bookView.getBookID();
         String bookName = bookView.getBookName();
+        Long personID = personView.getId();
         String personName = personView.getFullName();
         String phoneNumber = personView.getPhoneNumber();
         String givenDate = dateFormat.format( date );
         String returnDate = null;
 
-        HistoryModel historyModel = new HistoryModel(stringSQLdate, bookID, bookName, personName, phoneNumber, givenDate, returnDate);
+        HistoryModel historyModel = new HistoryModel(stringSQLdate, bookID, bookName, personID, personName, phoneNumber, givenDate, returnDate);
 
         entityManager.persist(historyModel);
 
@@ -56,10 +57,9 @@ public class HistoryGiveAndReturnBookDAOImpl implements HistoryGiveAndReturnBook
         java.sql.Timestamp sqlDate = new java.sql.Timestamp(date.getTime());
         String stringSQLdate = sqlDate.toString();
 
-        TypedQuery<HistoryModel> query = entityManager.createQuery("SELECT h FROM HistoryModel h WHERE bookID =:bookID AND personName =:personName AND phoneNumber =:phoneNumber AND returnDate IS NULL ORDER BY sysCreationDate DESC", HistoryModel.class);
+        TypedQuery<HistoryModel> query = entityManager.createQuery("SELECT h FROM HistoryModel h WHERE bookID =:bookID AND personID =:personID AND returnDate IS NULL ORDER BY sysCreationDate DESC", HistoryModel.class);
         query.setParameter("bookID", bookView.getBookID());
-        query.setParameter("personName", personView.getFullName());
-        query.setParameter("phoneNumber", personView.getPhoneNumber());
+        query.setParameter("personID", personView.getId());
         HistoryModel historyModel = query.getSingleResult();
         historyModel.setSysCreationDate(stringSQLdate);
         historyModel.setReturnDate( dateFormat.format(date) );

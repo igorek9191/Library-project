@@ -15,7 +15,7 @@ $(document).ready(function () {
             contentType:"application/json; charset=utf-8",
             success: function (result) {
                 console.log(result);
-                alert(result);
+                alert(JSON.stringify(result));
             },
             error: function(error) {
             console.log(error);

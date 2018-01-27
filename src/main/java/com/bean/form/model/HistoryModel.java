@@ -22,6 +22,9 @@ public class HistoryModel {
     @Column(name = "Book_Name")
     private String bookName;
 
+    @Column(name = "Person_ID")
+    private Long personID;
+
     @Column(name = "Peson_Name")
     private String personName;
 
@@ -34,10 +37,11 @@ public class HistoryModel {
     @Column(name = "Return_Date")
     private String returnDate;
 
-    public HistoryModel(String sysCreationDate, String bookID, String bookName, String personName, String phoneNumber, String givenDate, String returnDate) {
+    public HistoryModel(String sysCreationDate, String bookID, String bookName, Long personID, String personName, String phoneNumber, String givenDate, String returnDate) {
         this.sysCreationDate = sysCreationDate;
         this.bookID = bookID;
         this.bookName = bookName;
+        this.personID = personID;
         this.personName = personName;
         this.phoneNumber = phoneNumber;
         this.givenDate = givenDate;
