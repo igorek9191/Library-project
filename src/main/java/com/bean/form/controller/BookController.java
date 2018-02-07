@@ -87,39 +87,34 @@ public class BookController {
 
     @RequestMapping(value = "/book/addbyexcel", method = {POST})
     public ResponseEntity<String> addBooksFromEXCEL() throws IOException {
-        InputStream in = null;
-        try {
-            in = new FileInputStream("files\\bookCatalog.xlsx");
+
+        try(InputStream in = new FileInputStream("files\\bookCatalog.xlsx");
+            XSSFWorkbook wb = new XSSFWorkbook(in);)
+        {
+            List<String> list = new ArrayList<>();
+
+            Sheet sheet = wb.getSheetAt(0);
+            Iterator<Row> it = sheet.iterator();
+            while (it.hasNext()) {
+                Row row = it.next();
+                Iterator<Cell> cells = row.iterator();
+                while (cells.hasNext()) {
+                    Cell cell = cells.next();
+                    DataFormatter formatter = new DataFormatter();
+                    String val = formatter.formatCellValue(cell);
+                    //String str = cell.getRichStringCellValue().getString();
+                    list.add(val);
+                }
+            }
+            for (int i = 0; i < list.size(); i += 2) {
+                bookService.addBook(new BookView(list.get(i), list.get(i + 1)));
+            }
+            return new ResponseEntity<>("Книги успешно загружены из файла", HttpStatus.OK);
         } catch (FileNotFoundException e) {
             return new ResponseEntity<>("Не найден файл для загрузки книг\n" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        // Внимание InputStream будет закрыт
-        // Если нужно не закрывающий см. JavaDoc по POIFSFileSystem :  http://goo.gl/1Auu7
-        XSSFWorkbook wb = null;
-        try {
-            wb = new XSSFWorkbook(in);
         } catch (IOException e) {
             return new ResponseEntity<>("Не удалось загрузить книги из файла\n" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        List<String> list = new ArrayList<>();
-
-        Sheet sheet = wb.getSheetAt(0);
-        Iterator<Row> it = sheet.iterator();
-        while (it.hasNext()) {
-            Row row = it.next();
-            Iterator<Cell> cells = row.iterator();
-            while (cells.hasNext()) {
-                Cell cell = cells.next();
-                DataFormatter formatter = new DataFormatter();
-                String val = formatter.formatCellValue(cell);
-                //String str = cell.getRichStringCellValue().getString();
-                list.add(val);
-            }
-        }
-        for (int i = 0; i < list.size(); i += 2) {
-            bookService.addBook(new BookView(list.get(i), list.get(i + 1)));
-        }
-        return new ResponseEntity<>("Книги успешно загружены из файла", HttpStatus.OK);
     }
 
     @ExceptionHandler({BookAlreadyPresentException.class, BookNotFoundException.class, IncorrectInputBookDataException.class})
