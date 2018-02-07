@@ -26,15 +26,12 @@ public class PersonDAOImpl implements PersonDAO {
         TypedQuery<PersonModel> query = entityManager.createQuery("SELECT p FROM PersonModel p WHERE fullName =:fullName AND phoneNumber =:telephoneNumber", PersonModel.class);
         query.setParameter("fullName", personName);
         query.setParameter("telephoneNumber", telephoneNumber);
-        //System.out.println("*******************\n"+query.getSingleResult().getId() + " " + query.getSingleResult().getFullName() + " " + query.getSingleResult().getPhoneNumber());
-        PersonModel person = query.getSingleResult();
-        return person;
+        return query.getSingleResult();
     }
 
     @Override
     public PersonModel findById(Long id) {
-        PersonModel personModel = entityManager.find(PersonModel.class, id);
-        return personModel;
+        return entityManager.find(PersonModel.class, id);
     }
 
     @Override
@@ -45,14 +42,13 @@ public class PersonDAOImpl implements PersonDAO {
 
     @Override
     public PersonModel editPerson(PersonModel personModel) {
-        PersonModel person = entityManager.merge(personModel);
-        return person;
+        return entityManager.merge(personModel);
     }
 
     @Override
-    public void deletePerson(Long ID) {
-        PersonModel person = entityManager.find(PersonModel.class, ID);
-        if(person!=null) entityManager.remove(person);
+    public void deletePerson(Long Id) {
+        PersonModel personModel = entityManager.find(PersonModel.class, Id);
+        entityManager.remove(personModel);
     }
 
     @Override

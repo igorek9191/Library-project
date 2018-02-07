@@ -14,7 +14,7 @@ public interface BookService {
 
     BookView editBook(BookView bookView);
 
-    void deleteBook(String bookID);
+    void deleteBook(BookView bookView);
 
     List<BookView> getBookList();
 

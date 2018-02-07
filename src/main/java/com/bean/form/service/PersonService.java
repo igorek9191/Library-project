@@ -9,7 +9,7 @@ public interface PersonService {
 
     PersonView addPerson(PersonView personView);
 
-    PersonView editPerson(PersonView oldPerson, Long Id);
+    PersonView editPerson(PersonView oldPerson, PersonView newPerson);
 
     void deletePerson (PersonView personView);
 

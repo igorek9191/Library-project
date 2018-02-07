@@ -46,7 +46,6 @@ public class PersonModel {
         this.phoneNumber = phoneNumber;
     }
 
-    // для hibernate
     public PersonModel() {
     }
 

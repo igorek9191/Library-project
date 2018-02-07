@@ -11,7 +11,7 @@ public interface BookDAO {
 
     BookModel editBook (BookModel bookModel);
 
-    void deleteBook(String bookId);
+    void deleteBook(BookModel bookModel);
 
     List<BookModel> allBooks();
 

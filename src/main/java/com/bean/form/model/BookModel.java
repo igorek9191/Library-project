@@ -31,19 +31,15 @@ public class BookModel {
     public BookModel() {
     }
 
-    public BookModel(String bookName) {
-        this.bookName = bookName;
-    }
-
-    public BookModel(String id, String bookName) {
-        this.bookID = id;
-        this.bookName = bookName;
-    }
-
     public BookModel(String bookID, String bookName, PersonModel person) {
         this.bookID = bookID;
         this.bookName = bookName;
         this.person = person;
+    }
+
+    public BookModel(BookView book) {
+        this.bookID = book.getBookID();
+        this.bookName = book.getBookName();
     }
 
     public String getBookID() {

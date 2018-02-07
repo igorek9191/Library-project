@@ -34,14 +34,12 @@ public class BookDAOImpl implements BookDAO {
 
     @Override
     public BookModel editBook(BookModel bookModel) {
-        BookModel newBookModel = entityManager.merge(bookModel);
-        return newBookModel;
+        return entityManager.merge(bookModel);
     }
 
     @Override
-    public void deleteBook(String bookId) {
-        BookModel book = entityManager.find(BookModel.class, bookId);
-        if(book!=null) entityManager.remove(book);
+    public void deleteBook(BookModel bookModel) {
+        entityManager.remove(bookModel);
     }
 
     @Override
@@ -52,58 +50,45 @@ public class BookDAOImpl implements BookDAO {
 
     @Override
     public BookModel findById(String bookId) {
-        BookModel bookModel = entityManager.find(BookModel.class, bookId);
-        return bookModel;
+        return entityManager.find(BookModel.class, bookId);
     }
 
     @Override
     public PersonModel checkPersonOfBook(String bookId) {
         TypedQuery<PersonModel> query = entityManager.createQuery("SELECT person FROM BookModel WHERE bookID =:bookId", PersonModel.class).setParameter("bookId", bookId);
-        PersonModel person = query.getSingleResult();
-        //PersonModel personModel = (PersonModel) query.getSingleResult();
-        return person;
+        return query.getSingleResult();
     }
 
-    @Transactional
     @Override
     public void saveBookWithPerson(BookModel bookModel){
-        //entityManager.merge(bookModel);
         Query query = entityManager.createQuery("UPDATE BookModel SET person =:person WHERE bookID =:bookID");
         query.setParameter("person", bookModel.getPerson());
         query.setParameter("bookID", bookModel.getBookID()).executeUpdate();
-        BookModel model = entityManager.find(BookModel.class, bookModel.getBookID());
-        System.out.println(model.toString());
     }
 
-    @Transactional
     @Override
     public void detachBookFromPerson(BookModel bookModel) {
         String id = bookModel.getBookID();
         Query query = entityManager.createQuery("UPDATE BookModel SET person = null WHERE bookID =:id");
         query.setParameter("id", id).executeUpdate();
-        System.out.println(entityManager.find(BookModel.class, id).toString());
     }
 
     @Override
     public List<String> findPersonBooks(Long personId) {
         PersonModel person = entityManager.find(PersonModel.class, personId);
         TypedQuery<String> query = entityManager.createQuery("SELECT bookName FROM BookModel WHERE person =:person", String.class).setParameter("person", person);
-        List<String> books = query.getResultList();
-        return books;
+        return query.getResultList();
     }
 
     @Override
     public List<String> listOfBusyBooks() {
         TypedQuery<String> query = entityManager.createQuery("SELECT bookName FROM BookModel WHERE person is not null", String.class);
-        List<String> resultList = query.getResultList();
-        return resultList;
+        return query.getResultList();
     }
 
     @Override
     public List<String> listOfFreeBooks() {
         TypedQuery<String> query = entityManager.createQuery("SELECT bookName FROM BookModel WHERE person is null", String.class);
-        List<String> resultList = query.getResultList();
-        //List<String> resultList = query.getResultList().stream().map(e -> e.getBookName()).collect(Collectors.toList());
-        return resultList;
+        return query.getResultList();
     }
 }

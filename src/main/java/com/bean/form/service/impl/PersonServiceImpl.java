@@ -1,6 +1,8 @@
 package com.bean.form.service.impl;
 
 import com.bean.form.dao.PersonDAO;
+import com.bean.form.exceptions.PersonExceptions.PersonAlreadyExistsException;
+import com.bean.form.exceptions.PersonExceptions.PersonNotFoundException;
 import com.bean.form.model.PersonModel;
 import com.bean.form.service.PersonService;
 import com.bean.form.view.PersonView;
@@ -27,15 +29,27 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @Transactional
     public PersonView addPerson(PersonView personView) {
-        PersonModel personModel = new PersonModel(personView.getFullName(), personView.getPhoneNumber());
-        PersonModel person = personDAO.saveNewPerson(personModel);
-        return new PersonView(person.getId(), person.getFullName(), person.getPhoneNumber());
+        try {
+            findByFullNameAndTelNomber(personView);
+        } catch (EmptyResultDataAccessException e) {
+            PersonModel newPerson = new PersonModel(personView.getFullName(), personView.getPhoneNumber());
+            PersonModel savedPerson = personDAO.saveNewPerson(newPerson);
+            return new PersonView(savedPerson.getId(), savedPerson.getFullName(), savedPerson.getPhoneNumber());
+        }
+        throw new PersonAlreadyExistsException(personView.getFullName(), personView.getPhoneNumber());
     }
 
     @Override
     @Transactional
-    public PersonView editPerson(PersonView newPerson, Long Id) {
-        PersonModel newPersonModel = new PersonModel(Id, newPerson.getFullName(), newPerson.getPhoneNumber());
+    public PersonView editPerson(PersonView oldPerson, PersonView newPerson) {
+        PersonView existPerson;
+        try {
+            existPerson = findPersonWithId(oldPerson);
+        } catch (EmptyResultDataAccessException e) {
+            throw new PersonNotFoundException(oldPerson.getFullName(), oldPerson.getPhoneNumber());
+        }
+
+        PersonModel newPersonModel = new PersonModel(existPerson.getId(), newPerson.getFullName(), newPerson.getPhoneNumber());
         PersonModel savedPerson = personDAO.editPerson(newPersonModel);
         return new PersonView(savedPerson.getId(), savedPerson.getFullName(), savedPerson.getPhoneNumber());
     }
@@ -43,35 +57,40 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @Transactional
     public void deletePerson(PersonView personView) {
-        personDAO.deletePerson(personView.getId());
+        PersonView existPerson;
+        try {
+            existPerson = findPersonWithId(personView);
+        } catch (EmptyResultDataAccessException e) {
+            throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
+        }
+
+        personDAO.deletePerson(existPerson.getId());
     }
 
     @Override
     @Transactional
     public PersonView findByFullNameAndTelNomber(PersonView personView) throws EmptyResultDataAccessException {
         PersonModel personModel = personDAO.findByFullNameAndTelNomber(personView.getFullName(), personView.getPhoneNumber());
-        PersonView person = new PersonView(personModel.getFullName(), personModel.getPhoneNumber());
-        return person;
+        return new PersonView(personModel.getFullName(), personModel.getPhoneNumber());
     }
 
     @Override
     public PersonView findPersonWithId(PersonView personView) {
         PersonModel personModel = personDAO.findByFullNameAndTelNomber(personView.getFullName(), personView.getPhoneNumber());
-        PersonView person = new PersonView(personModel.getId(), personModel.getFullName(), personModel.getPhoneNumber());
-        return person;
+        return new PersonView(personModel.getId(), personModel.getFullName(), personModel.getPhoneNumber());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PersonView> personCatalog() {
         List<PersonModel> allPersons = personDAO.allPersons();
-        Function<PersonModel, PersonView> mapPersonModelToPersonView = person ->  {
+        Function<PersonModel, PersonView> mapPersonModelToPersonView = PersonView::new;/*person ->  {
             PersonView personView = new PersonView();
-
+            personView.id = person.getId();
             personView.fullName = person.getFullName();
             personView.phoneNumber = person.getPhoneNumber();
             return personView;
-        };
+        };*/
         return allPersons.stream().map(mapPersonModelToPersonView).collect(Collectors.toList());
     }
 
