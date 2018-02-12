@@ -27,3 +27,4 @@ mvnw.cmd
 mvnw
 .mvn/
 log/*
+*.patch
