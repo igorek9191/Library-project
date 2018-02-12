@@ -15,6 +15,5 @@
 
     <mvc:view-controller path="/" view-name="index.html"/>
     <mvc:view-controller path="/books" view-name="books.html"/>
-    <mvc:view-controller path="/books/uploadForm" view-name="uploadForm.html"/>
     <mvc:view-controller path="/persons" view-name="persons.html"/>
 </beans>
