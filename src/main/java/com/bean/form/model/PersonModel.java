@@ -59,9 +59,5 @@ public class PersonModel {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
     }
-
-    public boolean equals (PersonModel person){
-        if(this.id==person.getId() && this.fullName.equals(person.getFullName()) && this.phoneNumber==person.getPhoneNumber() && this.books.equals(person.books)) return true;
-        else return false;
-    }
+    
 }
