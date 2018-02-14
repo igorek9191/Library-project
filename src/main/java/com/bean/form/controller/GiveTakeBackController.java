@@ -86,15 +86,7 @@ public class GiveTakeBackController {
 
         PersonController.validateInputData(personView);
 
-        PersonView person;
-        List<String> books;
-
-        try {
-            person = personService.findPersonWithId(personView);
-        } catch (EmptyResultDataAccessException e){
-            throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-        }
-        books = bookService.findPersonBooks(person.getId());
+        List<String> books = bookService.findPersonBooks(personView);
         if(books.isEmpty()) return new ResponseEntity<>(books, HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }

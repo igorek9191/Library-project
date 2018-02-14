@@ -59,5 +59,5 @@ public class PersonModel {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
     }
-    
+
 }

@@ -58,8 +58,23 @@ public class PersonView {
         this.phoneNumber = phoneNumber;
     }
 
-    public boolean equals (PersonView personView){
-        if(this.fullName.equals(personView.fullName) && (this.phoneNumber == personView.phoneNumber)) return true;
-        else return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PersonView view = (PersonView) o;
+
+        if (id != null ? !id.equals(view.id) : view.id != null) return false;
+        if (fullName != null ? !fullName.equals(view.fullName) : view.fullName != null) return false;
+        return phoneNumber != null ? phoneNumber.equals(view.phoneNumber) : view.phoneNumber == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
+        result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
+        return result;
     }
 }

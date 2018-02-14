@@ -159,7 +159,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<String> findPersonBooks(Long personId) {
-        return bookDAO.findPersonBooks(personId);
+    public List<String> findPersonBooks(PersonView personView) {
+        PersonView person;
+        try {
+            person = personService.findPersonWithId(personView);
+        } catch (EmptyResultDataAccessException e){
+            throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
+        }
+        return bookDAO.findPersonBooks(person.getId());
     }
 }

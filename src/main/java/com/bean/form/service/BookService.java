@@ -26,5 +26,5 @@ public interface BookService {
 
     void detachPersonFromBook(BookView bookView, PersonView personView);
 
-    List<String> findPersonBooks(Long persomId);
+    List<String> findPersonBooks(PersonView personView);
 }
