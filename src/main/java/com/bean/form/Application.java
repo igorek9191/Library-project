@@ -42,6 +42,11 @@ public class Application {
 	}
 
 	@Bean
+    public AspectLogger aspectLogger(){
+	    return new AspectLogger();
+    }
+
+	@Bean
 	public LocaleResolver localeResolver() {
 		SessionLocaleResolver sessionLocaleResolver = new SessionLocaleResolver();
 		sessionLocaleResolver.setDefaultLocale(Locale.US);
