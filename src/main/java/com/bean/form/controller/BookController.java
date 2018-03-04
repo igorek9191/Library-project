@@ -1,30 +1,17 @@
 package com.bean.form.controller;
 
-import com.bean.form.exceptions.BookExceptions.BookAlreadyPresentException;
-import com.bean.form.exceptions.BookExceptions.BookNotFoundException;
 import com.bean.form.exceptions.BookExceptions.IncorrectInputBookDataException;
 import com.bean.form.service.BookService;
 import com.bean.form.view.BookView;
-import com.bean.form.view.ErrorResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -35,7 +22,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping(value = "/bookController", produces = APPLICATION_JSON_VALUE)
 public class BookController {
 
-    private static final String ID_PATTERN = "[\\d]{1,4}";
+    private static final String ID_PATTERN  = "[\\d]{1,4}";
     private static final String NAME_PATTERN = "[А-Яа-я]*\\s*[А-Яа-я]*\\s*[А-Яа-я]*";
 
     private final BookService bookService;
@@ -48,7 +35,7 @@ public class BookController {
     @ApiOperation(value = "add")
     @CrossOrigin
     @RequestMapping(value = "/book/add", method = {POST})
-    public ResponseEntity<BookView> addBook(@RequestBody BookView bookView) {
+    public ResponseEntity<BookView> addBook(@RequestBody BookView bookView){
         validateInputData(bookView);
 
         BookView data = bookService.addBook(bookView);
@@ -85,52 +72,10 @@ public class BookController {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/book/addbyexcel", method = {POST})
-    public ResponseEntity<String> addBooksFromEXCEL() throws IOException {
-
-        try(InputStream in = new FileInputStream("files\\bookCatalog.xlsx");
-            XSSFWorkbook wb = new XSSFWorkbook(in);)
-        {
-            List<String> list = new ArrayList<>();
-
-            Sheet sheet = wb.getSheetAt(0);
-            Iterator<Row> it = sheet.iterator();
-            while (it.hasNext()) {
-                Row row = it.next();
-                Iterator<Cell> cells = row.iterator();
-                while (cells.hasNext()) {
-                    Cell cell = cells.next();
-                    DataFormatter formatter = new DataFormatter();
-                    String val = formatter.formatCellValue(cell);
-                    //String str = cell.getRichStringCellValue().getString();
-                    list.add(val);
-                }
-            }
-            for (int i = 0; i < list.size(); i += 2) {
-                bookService.addBook(new BookView(list.get(i), list.get(i + 1)));
-            }
-            return new ResponseEntity<>("Книги успешно загружены из файла", HttpStatus.OK);
-        } catch (FileNotFoundException e) {
-            return new ResponseEntity<>("Не найден файл для загрузки книг\n" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Не удалось загрузить книги из файла\n" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @ExceptionHandler({BookAlreadyPresentException.class, BookNotFoundException.class, IncorrectInputBookDataException.class})
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ErrorResponse<List<String>> handleException(RuntimeException ex) {
-        ErrorResponse<List<String>> listOfResponse = new ErrorResponse<>();
-        List<String> list = new ArrayList<>();
-        list.add(ex.getMessage());
-        listOfResponse.setErrors(list);
-        return listOfResponse;
-    }
-
     protected static void validateInputData(BookView bookView) {
-        String bookID = bookView.getBookID();
+        Integer bookID = bookView.getBookID();
         String bookName = bookView.getBookName();
-        if (bookID == null || !bookID.matches(ID_PATTERN) ||
+        if (bookID == null || !bookID.toString().matches(ID_PATTERN) ||
                 bookName == null || !bookName.matches(NAME_PATTERN)) {
             throw new IncorrectInputBookDataException();
         }

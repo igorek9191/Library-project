@@ -18,10 +18,6 @@ public interface BookService {
 
     List<BookView> getBookList();
 
-    BookView findById (BookView bookView);
-
-    PersonView checkPersonOfBook(BookView bookView) throws EmptyResultDataAccessException;
-
     void addPersonToBook(BookView bookView, PersonView personView);
 
     void detachPersonFromBook(BookView bookView, PersonView personView);

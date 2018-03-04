@@ -4,7 +4,7 @@ import com.bean.form.model.PersonModel;
 
 public class PersonView {
 
-    public Long id;
+    public Integer id;
 
     public String fullName;
 
@@ -22,7 +22,7 @@ public class PersonView {
         this.phoneNumber = phoneNumber;
     }
 
-    public PersonView(Long id, String fullName, String phoneNumber) {
+    public PersonView(Integer id, String fullName, String phoneNumber) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -34,11 +34,11 @@ public class PersonView {
         this.phoneNumber = personModel.getPhoneNumber();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -56,6 +56,15 @@ public class PersonView {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "PersonView{" +
+                "id=" + id +
+                ", fullName='" + fullName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 
     @Override

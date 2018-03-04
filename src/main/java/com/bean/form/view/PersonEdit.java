@@ -59,4 +59,14 @@ public class PersonEdit {
     public void setNewPhoneNumber(String newPhoneNumber) {
         this.newPhoneNumber = newPhoneNumber;
     }
+
+    @Override
+    public String toString() {
+        return "PersonEdit{" +
+                "oldFullName='" + oldFullName + '\'' +
+                ", oldPhoneNumber='" + oldPhoneNumber + '\'' +
+                ", newFullName='" + newFullName + '\'' +
+                ", newPhoneNumber='" + newPhoneNumber + '\'' +
+                '}';
+    }
 }

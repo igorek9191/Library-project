@@ -1,13 +1,9 @@
 package com.bean.form.view;
 
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 public class BookToFromPerson {
 
-    public String bookID;
+    public Integer bookID;
 
     public String bookName;
 
@@ -23,7 +19,7 @@ public class BookToFromPerson {
         return new PersonView(this.fullName, this.phoneNumber);
     }
 
-    public BookToFromPerson(String bookID, String bookName, String fullName, String phoneNumber) {
+    public BookToFromPerson(Integer bookID, String bookName, String fullName, String phoneNumber) {
         this.bookID = bookID;
         this.bookName = bookName;
         this.fullName = fullName;
@@ -33,11 +29,11 @@ public class BookToFromPerson {
     public BookToFromPerson() {
     }
 
-    public String getBookID() {
+    public Integer getBookID() {
         return bookID;
     }
 
-    public void setBookID(String bookID) {
+    public void setBookID(Integer bookID) {
         this.bookID = bookID;
     }
 
@@ -65,33 +61,13 @@ public class BookToFromPerson {
         this.phoneNumber = phoneNumber;
     }
 
-
-
-    /*public BookView bookView = new BookView();
-
-    public PersonView personView = new PersonView();
-
-    public BookToFromPerson(BookView bookView, PersonView personView) {
-        this.bookView = bookView;
-        this.personView = personView;
+    @Override
+    public String toString() {
+        return "BookToFromPerson{" +
+                "bookID=" + bookID +
+                ", bookName='" + bookName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
-
-    public BookToFromPerson() {
-    }
-
-    public  BookView getBookView() {
-        return bookView;
-    }
-
-    public  void setBookView(BookView bookView) {
-        this.bookView = bookView;
-    }
-
-    public PersonView getPersonView() {
-        return personView;
-    }
-
-    public void setPersonView(PersonView personView) {
-        this.personView = personView;
-    }*/
 }

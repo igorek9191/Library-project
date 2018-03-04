@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS `Books`;
 CREATE TABLE IF NOT EXISTS `Books`(
-  `BookID`      INT(4) NOT NULL PRIMARY KEY,
+  `Book_ID`     INT(4) NOT NULL PRIMARY KEY,
   `Name`        VARCHAR(255) NOT NULL,
   `Person_Id`   INT,
 );
@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS `History`;
 CREATE TABLE IF NOT EXISTS `History`(
   `Id`                INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `Sys_Creation_Date` VARCHAR(255) NOT NULL,
-  `BookID`            INT(4) NOT NULL,
+  `Book_ID`           INT(4) NOT NULL,
   `Book_Name`         VARCHAR(255) NOT NULL,
   `Person_ID`         INT NOT NULL,
   `Peson_Name`        VARCHAR(255) NOT NULL,

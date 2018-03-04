@@ -9,8 +9,8 @@ import javax.persistence.*;
 public class BookModel {
 
     @Id
-    @Column(name = "BookID")
-    private String bookID;
+    @Column(name = "Book_ID")
+    private Integer bookID;
 
     @Column(name = "Name")
     private String bookName;
@@ -18,20 +18,11 @@ public class BookModel {
     @ManyToOne(fetch = FetchType.LAZY)//или @OneToOne...?
     @JoinColumn(name = "Person_Id")
     private PersonModel person;
-
-    /*@Override
-    public String toString() {
-        if(this.person == null){
-            return "BookModel is:\n"+ "bookID: "+ this.bookID + "\nbookName: " + this.bookName + "\npersonID: NULL";
-        } else {
-            return "BookModel is:\n" + "bookID: " + this.bookID + "\nbookName: " + this.bookName + "\npersonID: " + this.person.getId();
-        }
-    }*/
     
     public BookModel() {
     }
 
-    public BookModel(String bookID, String bookName, PersonModel person) {
+    public BookModel(Integer bookID, String bookName, PersonModel person) {
         this.bookID = bookID;
         this.bookName = bookName;
         this.person = person;
@@ -42,11 +33,11 @@ public class BookModel {
         this.bookName = book.getBookName();
     }
 
-    public String getBookID() {
+    public Integer getBookID() {
         return bookID;
     }
 
-    public void setBookID(String id) {
+    public void setBookID(Integer id) {
         this.bookID = id;
     }
 

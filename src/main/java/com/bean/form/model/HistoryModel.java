@@ -11,19 +11,19 @@ public class HistoryModel {
     @Id
     @GeneratedValue
     @Column(name = "Id")
-    private int id;
+    private Integer id;
 
     @Column(name = "Sys_Creation_Date")
     private String sysCreationDate;
 
-    @Column(name = "BookID")
-    private String bookID;
+    @Column(name = "Book_ID")
+    private Integer bookID;
 
     @Column(name = "Book_Name")
     private String bookName;
 
     @Column(name = "Person_ID")
-    private Long personID;
+    private Integer personID;
 
     @Column(name = "Peson_Name")
     private String personName;
@@ -37,7 +37,7 @@ public class HistoryModel {
     @Column(name = "Return_Date")
     private String returnDate;
 
-    public HistoryModel(String sysCreationDate, String bookID, String bookName, Long personID, String personName, String phoneNumber, String givenDate, String returnDate) {
+    public HistoryModel(String sysCreationDate, Integer bookID, String bookName, Integer personID, String personName, String phoneNumber, String givenDate, String returnDate) {
         this.sysCreationDate = sysCreationDate;
         this.bookID = bookID;
         this.bookName = bookName;
@@ -56,20 +56,20 @@ public class HistoryModel {
         StringBuffer buffer = new StringBuffer();
         if(this.returnDate == null) {
             buffer
-                    .append("Библиотечный № книги: " + this.bookID + "\n")
+                    .append("\n" + "Библиотечный № книги: " + this.bookID + "\n")
                     .append("Название книги: " + this.bookName + "\n")
                     .append("Имя читателя: " + this.personName + "\n")
                     .append("Телефон читателя: " + this.phoneNumber + "\n")
-                    .append("Дата выдачи книги: " + this.givenDate + "\n");
+                    .append("Дата выдачи книги: " + this.givenDate);
             return buffer.toString();
         } else {
             buffer
-                    .append("Библиотечный № книги: " + this.bookID + "\n")
+                    .append("\n" + "Библиотечный № книги: " + this.bookID + "\n")
                     .append("Название книги: " + this.bookName + "\n")
                     .append("Имя читателя: " + this.personName + "\n")
                     .append("Телефон читателя: " + this.phoneNumber + "\n")
                     .append("Дата выдачи книги: " + this.givenDate + "\n")
-                    .append("Дата возврата книги: "+this.returnDate + "\n");
+                    .append("Дата возврата книги: "+this.returnDate);
             return buffer.toString();
         }
     }

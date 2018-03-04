@@ -2,6 +2,7 @@ package com.bean.form.service.impl;
 
 import com.bean.form.dao.BookDAO;
 import com.bean.form.dao.HistoryDAO;
+import com.bean.form.dao.PersonDAO;
 import com.bean.form.exceptions.BookAlreadyIssuedException;
 import com.bean.form.exceptions.BookExceptions.BookAlreadyPresentException;
 import com.bean.form.exceptions.BookExceptions.BookNotFoundException;
@@ -15,9 +16,6 @@ import com.bean.form.service.PersonService;
 import com.bean.form.view.BookView;
 import com.bean.form.view.PersonView;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,143 +27,126 @@ import java.util.stream.Collectors;
 public class BookServiceImpl implements BookService {
 
     private final BookDAO bookDAO;
+    private final PersonDAO personDAO;
     private final HistoryDAO historyDAO;
-    private final PersonService personService;
 
     @Autowired
-    public BookServiceImpl(BookDAO bookDAO, HistoryDAO historyDAO, PersonService personService) {
+    public BookServiceImpl(BookDAO bookDAO, PersonDAO personDAO, HistoryDAO historyDAO) {
         this.bookDAO = bookDAO;
+        this.personDAO = personDAO;
         this.historyDAO = historyDAO;
-        this.personService = personService;
     }
 
     @Override
     @Transactional
     public BookView addBook(BookView bookView) {
-        BookModel existBook = bookDAO.findById(bookView.getBookID());
-        if (existBook != null) {
-            throw new BookAlreadyPresentException(existBook.getBookName(), existBook.getBookID());
+        BookModel savedBook;
+        BookModel existBook = bookDAO.findByBookID(bookView.getBookID());
+        if (existBook == null) {
+            savedBook = bookDAO.save(new BookModel(bookView));
+        } else {
+            throw new BookAlreadyPresentException(bookView.getBookID(), existBook.getBookName());
         }
-
-        BookModel newBook = new BookModel(bookView);
-        BookModel savedBook = bookDAO.addBook(newBook);
         return new BookView(savedBook);
     }
 
     @Override
     @Transactional
     public BookView editBook(BookView bookView) {
-        BookModel existBook = bookDAO.findById(bookView.getBookID());
-        if(existBook == null){
+        BookModel savedBook;
+        BookModel existBook = bookDAO.findByBookID(bookView.getBookID());
+        if (existBook == null) {
             throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        } else {
+            existBook.setBookName(bookView.getBookName());
+            savedBook = bookDAO.save(existBook);
         }
-
-        BookModel editingBook = new BookModel(bookView);
-        BookModel newBookModel = bookDAO.editBook(editingBook);
-        return new BookView(newBookModel);
+        return new BookView(savedBook);
     }
 
     @Override
     @Transactional
     public void deleteBook(BookView bookView) {
-        BookModel existBook = bookDAO.findById(bookView.getBookID());
+        BookModel existBook = bookDAO.findByBookID(bookView.getBookID());
         if(existBook == null){
             throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
         }
-
-        BookView existBookView = new BookView(existBook);
         //на случай если ID одинаковые но названия разные
+        BookView existBookView = new BookView(existBook);
         if(!bookView.equals(existBookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
-        bookDAO.deleteBook(existBook);
+
+        bookDAO.delete(existBook);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<BookView> getBookList() {
-        List<BookModel> bookModelList = bookDAO.allBooks();
+        List<BookModel> bookModelList = bookDAO.findAll();
         Function<BookModel, BookView> bookModelBookViewFunction = BookView::new;
         return bookModelList.stream().map(bookModelBookViewFunction).collect(Collectors.toList());
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public BookView findById(BookView bookView) {
-        BookModel bookModel = bookDAO.findById(bookView.getBookID());
-        if(bookModel == null) return null;
-        return new BookView(bookModel);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PersonView checkPersonOfBook(BookView bookView) throws EmptyResultDataAccessException {
-        PersonModel person = bookDAO.checkPersonOfBook(bookView.getBookID());
-        return new PersonView(person.getId(), person.getFullName(), person.getPhoneNumber());
-    }
-
-    @Override
     @Transactional
     public void addPersonToBook(BookView bookView, PersonView personView) {
-        BookView findBook = null;
-        PersonView findPerson = null;
-        PersonView checkPerson = null;
+        BookModel findBook = null;
+        PersonModel findPerson = null;
+        PersonModel checkPerson = null;
 
-        findBook = findById(bookView);//найти книгу
-        if(findBook==null || !findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        findBook = bookDAO.findByBookID(bookView.getBookID());
+        if(findBook==null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
 
-        try {
-            findPerson = personService.findPersonWithId(personView);//найти читателя
-            checkPerson = checkPersonOfBook(bookView);//проверить читателя у книги
-        } catch (EmptyResultDataAccessException e) {
-            if(findPerson == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-            if(checkPerson==null){
-                PersonModel personModel = new PersonModel(findPerson.getId(), findPerson.getFullName(), findPerson.getPhoneNumber());
-                BookModel bookModel = new BookModel(bookView.getBookID(), bookView.getBookName(), personModel);
-                bookDAO.saveBookWithPerson(bookModel);
+        //на случай если ID одинаковые но названия разные
+        BookView existBookView = new BookView(findBook);
+        if(!bookView.equals(existBookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
 
-                historyDAO.saveGivenEntry(findBook, findPerson);
-                return;
-            }
+        findPerson = personDAO.findByFullNameAndPhoneNumber(personView.getFullName(), personView.getPhoneNumber());
+        if(findPerson == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
+
+        checkPerson = bookDAO.checkPersonOfBook(bookView.getBookID());
+        if(checkPerson == null){
+            bookDAO.saveBookWithPerson(findPerson, bookView.getBookID());
+            historyDAO.saveEntryOfGiven(findBook, findPerson);
+        } else {
+            throw new BookAlreadyIssuedException(bookView.getBookName(), checkPerson.getFullName());
         }
-        throw new BookAlreadyIssuedException(bookView.getBookName(), checkPerson.getFullName());
     }
 
     @Override
     @Transactional
     public void detachPersonFromBook(BookView bookView, PersonView personView) {
-        BookView findBook = null;
-        PersonView findPerson = null;
-        PersonView checkPerson = null;
+        BookModel findBook = null;
+        PersonModel findPerson = null;
+        PersonModel checkPerson = null;
 
-        findBook = findById(bookView);//найти книгу
-        if(findBook==null || !findBook.equals(bookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
+        findBook = bookDAO.findByBookID(bookView.getBookID());
+        if(findBook==null) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
 
-        try {
-            findPerson = personService.findPersonWithId(personView);
-            checkPerson = checkPersonOfBook(bookView);
-        } catch (EmptyResultDataAccessException e) {
-            if(findPerson == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-            if(checkPerson == null) throw new BookWasNotGivenException(bookView.getBookName(), personView.getFullName());
-        }
-        if (checkPerson.equals(findPerson)) {
-            PersonModel personModel = new PersonModel(findPerson.getId(), findPerson.getFullName(), findPerson.getPhoneNumber());
-            BookModel bookModel = new BookModel(findBook.getBookID(), findBook.getBookName(), personModel);
-            bookDAO.detachBookFromPerson(bookModel);
+        //на случай если ID одинаковые но названия разные
+        BookView existBookView = new BookView(findBook);
+        if(!bookView.equals(existBookView)) throw new BookNotFoundException(bookView.getBookID(), bookView.getBookName());
 
-            historyDAO.saveReturnEntry(findBook, findPerson);
+        findPerson = personDAO.findByFullNameAndPhoneNumber(personView.getFullName(), personView.getPhoneNumber());
+        if(findPerson == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
+
+        checkPerson = bookDAO.checkPersonOfBook(bookView.getBookID());
+        if(checkPerson == null) throw new BookWasNotGivenException(bookView.getBookName(), personView.getFullName());
+
+        if(checkPerson.equals(findPerson)){
+            bookDAO.detachBookFromPerson(bookView.getBookID());
+            historyDAO.saveEntryOfReturn(findBook, findPerson);
         } else {
             throw new BookIssuedAnotherPersonException(bookView.getBookName(), checkPerson.getFullName(), checkPerson.getPhoneNumber(), findPerson.getFullName(), findPerson.getPhoneNumber());
         }
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<String> findPersonBooks(PersonView personView) {
-        PersonView person;
-        try {
-            person = personService.findPersonWithId(personView);
-        } catch (EmptyResultDataAccessException e){
-            throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
-        }
-        return bookDAO.findPersonBooks(person.getId());
+        PersonModel person = personDAO.findByFullNameAndPhoneNumber(personView.getFullName(), personView.getPhoneNumber());
+        if(person == null) throw new PersonNotFoundException(personView.getFullName(), personView.getPhoneNumber());
+
+        return bookDAO.findPersonBooks(person);
     }
 }

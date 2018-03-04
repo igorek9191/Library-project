@@ -1,17 +1,17 @@
 package com.bean.form.dao;
 
-import com.bean.form.view.BookView;
-import com.bean.form.view.PersonView;
+import com.bean.form.model.BookModel;
+import com.bean.form.model.PersonModel;
 
 import java.util.List;
 
 public interface HistoryDAO {
 
-    void saveGivenEntry(BookView bookView, PersonView personView);
+    void saveEntryOfGiven(BookModel bookModel, PersonModel personModel);
 
-    void saveReturnEntry(BookView bookView, PersonView personView);
+    void saveEntryOfReturn(BookModel bookModel, PersonModel personModel);
 
-    List<String> showEntriesThroughPerson (PersonView personView);
+    List<String> showEntriesThroughPerson (PersonModel personModel);
 
-    List<String> showEntriesThroughBook (BookView bookView);
+    List<String> showEntriesThroughBook (BookModel bookModel);
 }

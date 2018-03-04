@@ -1,8 +1,13 @@
 package com.bean.form;
 
-import com.bean.form.dao.impl.BookDAOImpl;
-import com.bean.form.dao.impl.PersonDAOImpl;
+import com.bean.form.dao.BookDAO;
+import com.bean.form.dao.PersonDAO;
+//import com.bean.form.dao.impl.BookDAOImpl;
+//import com.bean.form.dao.impl.PersonDAOImpl;
+import com.bean.form.exceptions.GlobalExceptionHandler;
+import com.bean.form.service.HistoryService;
 import com.bean.form.service.impl.BookServiceImpl;
+import com.bean.form.service.impl.HistoryServiceImpl;
 import com.bean.form.service.impl.PersonServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,7 +31,7 @@ import static springfox.documentation.builders.PathSelectors.regex;
 @EnableSwagger2
 @ImportResource("spring_mvc_config.xml")
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.bean.form.controller"},basePackageClasses = {BookServiceImpl.class, BookDAOImpl.class, PersonServiceImpl.class, PersonDAOImpl.class})
+@ComponentScan(basePackages = {"com.bean.form.controller"},basePackageClasses = {BookServiceImpl.class, BookDAO.class, PersonServiceImpl.class, PersonDAO.class, HistoryService.class})
 public class Application {
 
 	public static void main(String[] args) {
@@ -45,6 +50,11 @@ public class Application {
     public AspectLogger aspectLogger(){
 	    return new AspectLogger();
     }
+
+    @Bean
+	public GlobalExceptionHandler globalExceptionHandler(){
+    	return new GlobalExceptionHandler();
+	}
 
 	@Bean
 	public LocaleResolver localeResolver() {

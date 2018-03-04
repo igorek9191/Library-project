@@ -4,14 +4,14 @@ import com.bean.form.model.BookModel;
 
 public class BookView {
 
-    public String bookID;
+    public Integer bookID;
 
     public String bookName;
 
     public BookView() {
     }
 
-    public BookView(String bookID, String bookName) {
+    public BookView(Integer bookID, String bookName) {
         this.bookID = bookID;
         this.bookName = bookName;
     }
@@ -21,11 +21,11 @@ public class BookView {
         this.bookName = book.getBookName();
     }
 
-    public String getBookID() {
+    public Integer getBookID() {
         return bookID;
     }
 
-    public void setBookID(String bookID) {
+    public void setBookID(Integer bookID) {
         this.bookID = bookID;
     }
 
@@ -37,14 +37,13 @@ public class BookView {
         this.bookName = bookName;
     }
 
-    /*@Override
+    @Override
     public String toString() {
-        return "BookModel{" +
-                " id= " + bookID +
-                " fullName= " + bookName +
-                " }";
-    }*/
-
+        return "BookView{" +
+                "bookID=" + bookID +
+                ", bookName='" + bookName + '\'' +
+                '}';
+    }
 
     @Override
     public boolean equals(Object o) {

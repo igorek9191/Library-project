@@ -9,7 +9,7 @@ public class PersonModel {
     @Id
     @GeneratedValue
     @Column(name = "Id")
-    private Long id;
+    private Integer id;
 
     //@Basic(optional = false)
     @Column(name = "Full_Name")
@@ -22,11 +22,11 @@ public class PersonModel {
     @OneToMany(mappedBy = "person")
     List<BookModel> books;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -54,7 +54,7 @@ public class PersonModel {
         this.phoneNumber = phoneNumber;
     }
 
-    public PersonModel(Long id, String fullName, String phoneNumber) {
+    public PersonModel(Integer id, String fullName, String phoneNumber) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;

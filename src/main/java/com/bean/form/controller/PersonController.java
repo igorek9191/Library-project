@@ -32,12 +32,10 @@ public class PersonController {
     private static final String PHONE_NUMBER_PATTERN = "[\\d]{11}";
     private static final String PHONE_NUMBER_PATTERN_2 = "[\\d]{6}";
 
-    private final TaskExecutor executor;
     private final PersonService personService;
 
     @Autowired
-    public PersonController(TaskExecutor executor, PersonService personService) {
-        this.executor = executor;
+    public PersonController(PersonService personService) {
         this.personService = personService;
     }
 
@@ -85,15 +83,6 @@ public class PersonController {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    @ExceptionHandler({IncorrectPersonInputDataException.class, PersonAlreadyExistsException.class, PersonNotFoundException.class})
-    @ResponseStatus(value= HttpStatus.BAD_REQUEST)
-    public ErrorResponse<List<String>> handleException(RuntimeException ex){
-        ErrorResponse<List<String>> listOfResponse = new ErrorResponse<>();
-        List<String> list = new ArrayList<>();
-        list.add(ex.getMessage());
-        listOfResponse.setErrors(list);
-        return listOfResponse;
-    }
 
     public static void validateInputData(PersonView personView) {
         String personName = personView.getFullName();
