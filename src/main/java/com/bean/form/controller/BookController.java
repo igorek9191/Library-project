@@ -23,7 +23,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class BookController {
 
     private static final String ID_PATTERN  = "[\\d]{1,4}";
-    private static final String NAME_PATTERN = "[А-Яа-я]*\\s*[А-Яа-я]*\\s*[А-Яа-я]*";
+    private static final String PUNCTUATION = "'!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~' ";
 
     private final BookService bookService;
 
@@ -74,10 +74,14 @@ public class BookController {
 
     protected static void validateInputData(BookView bookView) {
         Integer bookID = bookView.getBookID();
+        if (bookID == null || !bookID.toString().matches(ID_PATTERN)) { throw new IncorrectInputBookDataException(); }
+
         String bookName = bookView.getBookName();
-        if (bookID == null || !bookID.toString().matches(ID_PATTERN) ||
-                bookName == null || !bookName.matches(NAME_PATTERN)) {
-            throw new IncorrectInputBookDataException();
-        }
+        boolean b = bookName.chars()
+                .mapToObj(c -> (char) c)
+                .filter(c -> PUNCTUATION.indexOf(c) == -1)
+                .map(Character.UnicodeBlock::of)
+                .allMatch(i -> i.equals(Character.UnicodeBlock.CYRILLIC));
+        if(!b) throw new IncorrectInputBookDataException();
     }
 }
